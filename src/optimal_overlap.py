@@ -31,7 +31,6 @@ def optimal_overlap(w: str, v: str):
             options = [align, insert, delete]
             max_value = max(options)
             max_index = options.index(max_value)
-
             if max_index == 0:
                 scores[i][j] = align
                 paths[i][j] = DIAG
