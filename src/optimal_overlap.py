@@ -1,4 +1,8 @@
 import numpy as np
+from pathlib import Path
+import csv
+import sys
+
 
 MATCH = 4
 MISMATCH = -4
@@ -8,7 +12,7 @@ LEFT = 2
 UP = 3
 
 
-def optimal_overlap(w: str, v: str):
+def find_optimal_overlap(w: str, v: str):
     # w on top, v on side
     m = len(w)
     n = len(v)
@@ -20,13 +24,13 @@ def optimal_overlap(w: str, v: str):
     opt_score = [0, 0]
 
     # n, i = row;  m, j = column
-    for j in range(1, m+1):
-        for i in range(1, n+1):
+    for i in range(1, n+1):
+        for j in range(1, m+1):
             align = scores[i - 1][j - 1] + MATCH if w[j - 1] == v[i - 1] else scores[i - 1][j - 1] + MISMATCH
             insert = scores[i][j-1] + INDEL
             delete = scores[i-1][j] + INDEL
 
-            # Only keeping one alignment - preference for alignment because it's easier :P
+            # Only keeping one alignment - preference for alignment because it's simpler
 
             options = [align, insert, delete]
             max_value = max(options)
@@ -58,32 +62,80 @@ def optimal_overlap(w: str, v: str):
     current = paths[current_row][current_column]
     length = 0
     # w is first, v is second
-    overlap = ["", ""]
+    alignment = ["", ""]
+    num_seq_1 = 0
+    num_seq_2 = 0
 
     while current != 0:
         if current == DIAG:
-            overlap[0] = w[current_column - 1] + overlap[0]
-            overlap[1] = v[current_row - 1] + overlap[1]
+            alignment[0] = w[current_column - 1] + alignment[0]
+            alignment[1] = v[current_row - 1] + alignment[1]
             current_column -= 1
             current_row -= 1
+            num_seq_1 += 1
+            num_seq_2 += 1
         elif current == LEFT:
-            overlap[0] = w[current_column - 1] + overlap[0]
-            overlap[1] = "-" + overlap[1]
+            alignment[0] = w[current_column - 1] + alignment[0]
+            alignment[1] = "-" + alignment[1]
             current_column -= 1
+            num_seq_1 += 1
         else:
-            overlap[0] = "-" + overlap[0]
-            overlap[1] = v[current_row - 1] + overlap[1]
+            alignment[0] = "-" + alignment[0]
+            alignment[1] = v[current_row - 1] + alignment[1]
             current_row -= 1
+            num_seq_2 += 1
         current = paths[current_row][current_column]
         length += 1
 
-    # overlap - just the overlap, not the full words for now
-    return [[opt_score[0]], [overlap], [length]]
+    rest_seq_1 = len(w) - num_seq_1
+
+    alignment[0] = w[:rest_seq_1] + alignment[0]
+    alignment[1] = (" " * rest_seq_1) + alignment[1] + v[num_seq_2:]
+
+    return opt_score[0], alignment, length
 
 
-w1 = "CATCCTTCT"
-w2 = "CCTTTCACC"
-w3 = "CGAATTCGG"
-w4 = "ATCGTTGGT"
-print(optimal_overlap(w1, w2))
-print(optimal_overlap(w3, w4))
+def get_two_sequences(file: str):
+    sequence1 = ""
+    sequence2 = ""
+
+    path = Path(file)
+    if not path.is_file():
+        print(f"{path} is not a file.")
+        return
+
+    with open(path) as file:
+        line_num = 1
+        sequence1_line = 2
+        sequence2_line = 6
+        for line in file:
+            if line_num == sequence1_line:
+                sequence1 += line[:-1]
+            if line_num == sequence2_line:
+                sequence2 += line[:-1]
+            if line_num > 8:
+                print("Error: file not in expected format.")
+            line_num += 1
+
+    return sequence1, sequence2
+
+
+def main():
+    if len(sys.argv) != 2:
+        print("Expected a FASTQ file as a single argument.")
+        return
+
+    sequences = get_two_sequences(sys.argv[1])
+    results = find_optimal_overlap(sequences[0], sequences[1])
+    print("Score: ", end='')
+    print(results[0])
+    print(results[1][0])
+    print(results[1][1])
+    print("Length: ", end='')
+    print(results[2])
+
+
+if __name__ == "__main__":
+    main()
+
+
