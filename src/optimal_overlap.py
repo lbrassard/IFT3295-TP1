@@ -19,6 +19,8 @@ def find_optimal_overlap(w: str, v: str):
 
     scores = np.zeros((n+1, m+1), dtype=int)
     paths = np.zeros((n+1, m+1), dtype=int)
+    for i in range(1, len(paths)):
+        paths[i][0] = UP
 
     # first num is score, second num is row it's found in
     opt_score = [0, 0]
