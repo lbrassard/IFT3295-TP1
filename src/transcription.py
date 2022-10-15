@@ -81,3 +81,5 @@ def find_start_codon(traduction, which):
 find_start_codon(traduction1,1)
 find_start_codon(traduction2,2)
 find_start_codon(traduction3,3)
+
+
