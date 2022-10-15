@@ -1,6 +1,5 @@
 import numpy as np
 from pathlib import Path
-import csv
 import sys
 
 
@@ -116,7 +115,7 @@ def get_two_sequences(file: str):
             if line_num == sequence2_line:
                 sequence2 += line[:-1]
             if line_num > 8:
-                print("Error: file not in expected format.")
+                print("Error: file not in expected format. Expected a file with two sequences.")
             line_num += 1
 
     return sequence1, sequence2
@@ -139,5 +138,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
