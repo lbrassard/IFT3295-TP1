@@ -1,6 +1,13 @@
+#pour lancer ce petit script, vous devez passer la commande suivant dans le terminal
+# python3 src/transcription.py data/sequence.fasta
+
+import sys
+
 sequence = ""
 
-with open("../data/sequence.fasta","r") as fh:
+sequence_file = sys.argv[1]
+
+with open(sequence_file,"r") as fh:
         for line in fh:
             if not line.startswith(">"):
                 sequence = str(line)

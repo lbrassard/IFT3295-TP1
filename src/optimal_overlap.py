@@ -1,7 +1,9 @@
+# Pour executer ce script vous devez entrer la commande suivante, qui prend 2 séquences et retourne le chevauchement
+# python3 src/optimal_overlap.py data/compare_file/R1/R1R2.fq
+
 import numpy as np
 from pathlib import Path
 import sys
-
 
 MATCH = 4
 MISMATCH = -4
